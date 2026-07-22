@@ -2,11 +2,14 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import MainLayout from "../layouts/MainLayout";
 import AuthLayout from "../layouts/AuthLayout";
+import DashboardLayout from "../layouts/DashboardLayout";
 
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import NotFound from "../pages/NotFound";
+import Dashboard from "../pages/Dashboard";
+
 
 const AppRoutes = () => {
   return (
@@ -18,6 +21,9 @@ const AppRoutes = () => {
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+        </Route>
+        <Route element={<DashboardLayout/>}>
+          <Route path="/dashboard" element={<Dashboard />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

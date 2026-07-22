@@ -1,59 +1,59 @@
-import { Link } from "react-router-dom";
+
 import { useState } from "react";
 
 import AuthCard from "../component/AuthCard";
+import InputField from "../component/InputField";
+import Button from "../component/Button";
+import AuthFooter from "../component/AuthFooter";
+
+import useForm from "../hooks/useForm";
 
 const Login = () => {
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
 
-  const handleChange = (event) =>{
-    const {name, value} = event.target;
-    setFormData((prevData)=>({
-    ...prevData,
-    [name]: value,
-  }))
-  }
-  
+  const {formData, handleChange} = useForm({email: "", password:""})
+
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    if (!formData.email || !formData.password) {
+      setError("Please fill in all fields");
+      return;
+    }
+    setError("");
+    console.log(formData);
+  };
 
   return (
     <AuthCard title={"Welcome Back"} subtitle={"Login to continue"}>
-      <form>
-        <div className="mb-3">
-          <label htmlFor="email" className="form-label">
-            Email Address
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            className="form-control"
-            placeholder="Enter your email"
-            value={formData.email}
-            onChange={handleChange}
-          ></input>
-        </div>
-        <div className="mb-3">
-          <label htmlFor="password" className="form-label">
-            Password
-          </label>
-          <input
-            type="password"
-            id="password"
-            className="form-control"
-            placeholder="Enter your password"
-            value={formData.password}
-            onChange={handleChange}
-            name="password"
-          ></input>
-        </div>
-        <button className="btn btn-primary w-100">Login</button>
-        <p className="text-center mt-4 mb-0">
-          Don't have an account? {""}
-          <Link to={"/register"}>Register</Link>
-        </p>
+      {error && <div className="alert alert-danger">{error}</div>}
+      <form onSubmit={handleSubmit}>
+        <InputField
+          label="Email Address"
+          type="email"
+          id="email"
+          name="email"
+          placeholder="Enter your email"
+          value={formData.email}
+          onChange={handleChange}
+        />
+        <InputField
+          label="Password"
+          type="password"
+          id="password"
+          name="password"
+          placeholder="Enter your password"
+          value={formData.password}
+          onChange={handleChange}
+        />
+        <Button text={"Login"} type="submit"/>
+        <AuthFooter text="Don't have an account?" linkText={"Register"} linkTo={"/register"}/>
       </form>
     </AuthCard>
   );
 };
+
+
 
 export default Login;
