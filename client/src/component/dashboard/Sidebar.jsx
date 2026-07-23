@@ -3,9 +3,13 @@ import { NavLink } from "react-router-dom"
 const Sidebar = () => {
   return (
     <aside className="bg-dark text-white p-4" style={{minHeight:"100vh", width:"250px"}}>
-        <h3 mb-3>AI Resume Analyzer</h3>
+        <h3 className="mb-5">AI Resume Analyzer</h3>
         <nav className="d-flex flex-column gap-3">
-            <NavLink className={"text-white text-decoration-none"}>Dashboard</NavLink>
+            <NavLink className={"text-white text-decoration-none"} to={"/dashboard"}>Dashboard</NavLink>
+            <NavLink className={"text-white text-decoration-none"} to={"/upload"}>Upload Resume</NavLink>
+            <NavLink className={"text-white text-decoration-none"} to={"/history"}>Analysis History</NavLink>
+            <NavLink className={"text-white text-decoration-none"} to={"/profile"}>Profile</NavLink>
+            <NavLink className={"text-white text-decoration-none"} to={"/login"}>Logout</NavLink>
         </nav>
     </aside>
   )
@@ -14,7 +18,3 @@ const Sidebar = () => {
 export default Sidebar
 
 
-//Dashboard
-//Uplaod resime
-//Analysis history
-// profile

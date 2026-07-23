@@ -9,6 +9,9 @@ import Login from "../pages/Login";
 import Register from "../pages/Register";
 import NotFound from "../pages/NotFound";
 import Dashboard from "../pages/Dashboard";
+import UploadResume from "../pages/UploadResume";
+import AnalysisHistory from "../pages/AnalysisHistory";
+import Profile from "../pages/Profile";
 
 
 const AppRoutes = () => {
@@ -24,6 +27,9 @@ const AppRoutes = () => {
         </Route>
         <Route element={<DashboardLayout/>}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="dashboard/upload" element={<UploadResume />} />
+          <Route path="/dashboard/history" element={<AnalysisHistory />} />
+          <Route path="/dashboard/profile" element={<Profile />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

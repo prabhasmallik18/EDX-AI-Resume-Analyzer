@@ -9,10 +9,11 @@ const DashboardLayout = () => {
         <Sidebar/>
         <div className="flex-grow-1 bg-light">
             <Topbar/>
-        </div>
+        
         <main className="p-4">
             <Outlet/>
         </main>
+        </div>
     </div>
   )
 }
