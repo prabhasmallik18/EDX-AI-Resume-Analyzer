@@ -1,5 +1,8 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { loginUser } from "../api/authApi";
 
 import AuthCard from "../component/AuthCard";
 import InputField from "../component/InputField";
@@ -9,20 +12,32 @@ import AuthFooter from "../component/AuthFooter";
 import useForm from "../hooks/useForm";
 
 const Login = () => {
+  const navigate = useNavigate()
   const [error, setError] = useState("");
 
   const {formData, handleChange} = useForm({email: "", password:""})
 
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (!formData.email || !formData.password) {
       setError("Please fill in all fields");
       return;
     }
-    setError("");
-    console.log(formData);
+
+    try{
+        setError("");
+
+        const response = await loginUser(formData)
+        localStorage.setItem("token", response.token)
+        localStorage.setItem("user", JSON.stringify(response.data))
+        navigate("/dashboard")
+    }catch (error){
+      setError(error.message)
+    }
+    
+  
   };
 
   return (

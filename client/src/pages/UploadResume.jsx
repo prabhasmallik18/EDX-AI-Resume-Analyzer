@@ -1,6 +1,8 @@
 import { Upload } from "lucide-react";
 import { useState, useRef } from "react";
 
+import { uploadResume } from "../api/resumeApi";
+
 import ResumePreviewCard from "../component/upload/ResumePreviewCard";
 
 const UploadResume = () => {
@@ -42,19 +44,33 @@ const UploadResume = () => {
     handleSelectedFile(file)
   };
 
-  const handleUpload = (event) => {
+  const handleUpload = async (event) => {
     event.preventDefault();
+    event.stopPropagation();
 
     if (!selectedFile) {
       return;
     }
-    setloading(true);
-    setTimeout(() => {
-      setloading(false);
-      setSuccess("Resume uploaded successfully!");
+
+    try{
+      setloading(true);
+      setError("")
+      setSuccess("")
+
+      const token = localStorage.getItem("token")
+
+      const response = await uploadResume(selectedFile, token)
+      setSuccess(response.message)
       setSelectedFile(null);
-      setError("");
-    }, 2000);
+
+      if (fileInputRef.current){
+        fileInputRef.current.value= "";
+      }
+    }catch(error){
+      setError(error.message)
+    }finally{
+      setloading(false)
+    }
   };
 
   const handleRemoveFile = () =>{
