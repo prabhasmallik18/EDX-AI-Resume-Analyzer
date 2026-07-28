@@ -8,7 +8,7 @@ import ResumePreviewCard from "../component/upload/ResumePreviewCard";
 const UploadResume = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [error, setError] = useState("");
-  const [loading, setloading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [dragActive, setDragActive] = useState(false)
 
@@ -45,33 +45,33 @@ const UploadResume = () => {
   };
 
   const handleUpload = async (event) => {
-    event.preventDefault();
-    event.stopPropagation();
+  event.preventDefault();
 
-    if (!selectedFile) {
-      return;
+  if (!selectedFile) return;
+
+  try {
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
+    const token = localStorage.getItem("token");
+
+    const response = await uploadResume(selectedFile, token);
+
+    setSuccess(response.message);
+
+    setSelectedFile(null);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
 
-    try{
-      setloading(true);
-      setError("")
-      setSuccess("")
-
-      const token = localStorage.getItem("token")
-
-      const response = await uploadResume(selectedFile, token)
-      setSuccess(response.message)
-      setSelectedFile(null);
-
-      if (fileInputRef.current){
-        fileInputRef.current.value= "";
-      }
-    }catch(error){
-      setError(error.message)
-    }finally{
-      setloading(false)
-    }
-  };
+  } catch (error) {
+    setError(error.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleRemoveFile = () =>{
     setSelectedFile(null)

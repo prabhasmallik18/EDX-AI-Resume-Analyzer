@@ -23,11 +23,16 @@ const resumeSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        extractedText:{
+            type: String,
+            default: "",
+        },
         analysisStatus: {
             type: String,
             enum: ["Pending", "Processing","Completed", "Failed"],
             default: "Pending",
-        }
+        },
+        
 
     },
     {

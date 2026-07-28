@@ -4,12 +4,92 @@ import RecentAnalysisCard from "../component/dashboard/RecentAnalysisCard"
 
 import { useNavigate } from "react-router-dom"
 
-import { statistics, quickActions, recentAnalysis } from "../data/dashboard"
+import { statistics as defaultStatistics, quickActions } from "../data/dashboard"
+
+
+import { getMyResumes } from "../api/resumeApi"
+
+import { useState , useEffect} from "react"
 
 
 
 function Dashboard() {
   const navigate = useNavigate();
+
+  const [resumes, setResumes]= useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+
+  // const statistics = resumes.length > 0 ?[
+  //   {
+  //     ...defaultStatistics[0],
+  //     value: resumes.length,
+  //   },
+  //   {
+  //     ...defaultStatistics[1],
+  //     value:
+  //     resumes.filter((resume)=> resume.analysisStatus === "Completed").length || 0,
+  //   },
+  //   {
+  //     ...defaultStatistics[2],
+  //     value: resumes.filter((resume)=> resume.analysisStatus === "Pending").length,
+  //   },
+  //   {
+  //     ...defaultStatistics[3],
+  //     value: resumes.filter((resume)=> resume.analysisStatus === "Failed").length,
+  //   }
+  // ]:defaultStatistics;
+
+
+  const statistics = defaultStatistics.map((stat)=>{
+    switch(stat.title){
+      case "Total Resumes":
+        return{
+            ...stat,
+            value: resumes.length
+        }
+      case "Average ATS Score":
+        return{
+          ...stat,
+          value: "N/A"
+        }
+      case "Job Matches":
+        return{
+          ...stat,
+          value: 0
+        }
+      case "Uploads":
+        return{
+          ...stat,
+          value: resumes.length
+        }
+    }
+  })
+
+  useEffect(()=>{
+    const fetchResumes = async()=>{
+      try{
+        const token = localStorage.getItem("token")
+        
+        const response = await getMyResumes(token)
+        setResumes(response.data)
+      }catch(error){
+        setError(error.message)
+      }finally{
+        setLoading(false)
+      }
+    }
+    fetchResumes()
+  }, [])
+
+  // if(loading){
+  //   return <h3>Loading reusmes.....</h3>
+  // }
+  // if(error){
+  //   return <h3>{error}</h3>
+  // }
+
+  const Loading = loading
 
   return (
     <>
@@ -76,28 +156,40 @@ function Dashboard() {
       </h4>
 
       <button
-        className="btn btn-outline-primary btn-sm"
+        className="btn btn-outline-primary btn-sm"  onClick={()=> navigate("/dashboard/history")}
       >
         View All
       </button>
 
     </div>
 
-    {recentAnalysis.map((analysis) => (
+    {loading?(
+      <div className="text=center py-3">
+        <div className="spinner-border text-primary"></div>
+      </div>
+    ): resumes.length === 0 ? (
+      <p className="text-muted">
+        No resumes uploaded
+      </p>
+    ):(
+      resumes.slice(0,3).map((resume)=>(
+        <RecentAnalysisCard
 
-      <RecentAnalysisCard
+        key={resume.id}
 
-        key={analysis.id}
+        resumeName={resume.originalName}
 
-        resumeName={analysis.resumeName}
+        atsScore={resume.analysisStatus === "Completed"
+          ? `${resume.atsScore || 0}%` : "Pending"
+        }
 
-        atsScore={analysis.atsScore}
-
-        analyzedOn={analysis.analyzedOn}
+        analyzedOn={new Date(
+          resume.createdAt
+        ).toLocaleDateString()}
 
       />
-
-    ))}
+      ))
+    )}
 
   </div>
 

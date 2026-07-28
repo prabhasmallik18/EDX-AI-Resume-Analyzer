@@ -21,3 +21,43 @@ export const uploadResume  = async (file, token) =>{
 
     return data
 }
+
+
+export const getMyResumes = async(token) =>{
+    const response = await fetch(`${BASE_URL}/resume/my-resumes`,{
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    })
+
+    const data = await response.json();
+
+    if(!response.ok){
+        throw new Error(data.message)
+    }
+
+    return data
+
+}
+
+
+export const deleteResume = async(id, token) =>{
+    const response = await fetch(`${BASE_URL}/resume/${id}`,
+        {
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    )
+
+    const data = await response.json();
+
+    if(!response.ok){
+        throw new Error(data.message)
+    }
+
+    return data
+
+
+}
