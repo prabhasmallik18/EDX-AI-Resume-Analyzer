@@ -32,7 +32,30 @@ const resumeSchema = new mongoose.Schema(
             enum: ["Pending", "Processing","Completed", "Failed"],
             default: "Pending",
         },
-        
+        atsScore:{
+            type: Number,
+            default: null,
+        },
+        skills:{
+            type: [String],
+            default: [],
+        },
+        missingSkills:{
+            type: [String],
+            default: [],
+        },
+        strengths:{
+            type: [String],
+            default: [],
+        },
+        weaknesses:{
+            type: [String],
+            default: [],
+        },
+        suggestions:{
+            type: [String],
+            default: [],
+        },
 
     },
     {

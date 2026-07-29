@@ -3,15 +3,12 @@ const Resume = require("../models/Resume");
 const fs = require("fs");
 const path = require("path");
 
+const extractedTextFromPDF = require("../utils/pdfParser")
+const {createResume} = require("../services/resumeService")
+
 const uploadResume = async (req, res) => {
   try {
-    const resume = await Resume.create({
-      user: req.user.userId,
-      originalName: req.file.originalname,
-      fileName: req.file.filename,
-      filePath: req.file.path,
-      fileSize: req.file.size,
-    });
+    const resume = await createResume(req.file, req.user.userId)
     res.status(200).json({
       success: true,
       message: "Resume uploaded successfully",
