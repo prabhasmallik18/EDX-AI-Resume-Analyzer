@@ -41,6 +41,33 @@ const getMyResumes = async (req, res) => {
   }
 };
 
+const getResumeById = async (req, res) =>{
+  try{
+     const resume = await Resume.findOne({
+      _id: req.params.id,
+      user: req.user.userId,
+     })
+
+     if(!resume){
+      return res.status(404).json({
+        success: false,
+        message: "Resume not found"
+      })
+     }
+     res.status(200).json({
+      success: true,
+      data: resume,
+     })
+  }catch(error){
+    console.error("Get Resume Error:", error)
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    })
+  }
+}
+
 
 const deleteResume = async(req, res) =>{
     try{
@@ -84,4 +111,5 @@ module.exports = {
   uploadResume,
   getMyResumes,
   deleteResume,
+  getResumeById,
 };
