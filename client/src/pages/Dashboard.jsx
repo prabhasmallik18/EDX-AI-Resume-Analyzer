@@ -10,6 +10,7 @@ import { statistics as defaultStatistics, quickActions } from "../data/dashboard
 import { getMyResumes } from "../api/resumeApi"
 
 import { useState , useEffect} from "react"
+import { FileText } from "lucide-react"
 
 
 
@@ -19,27 +20,6 @@ function Dashboard() {
   const [resumes, setResumes]= useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
-
-  // const statistics = resumes.length > 0 ?[
-  //   {
-  //     ...defaultStatistics[0],
-  //     value: resumes.length,
-  //   },
-  //   {
-  //     ...defaultStatistics[1],
-  //     value:
-  //     resumes.filter((resume)=> resume.analysisStatus === "Completed").length || 0,
-  //   },
-  //   {
-  //     ...defaultStatistics[2],
-  //     value: resumes.filter((resume)=> resume.analysisStatus === "Pending").length,
-  //   },
-  //   {
-  //     ...defaultStatistics[3],
-  //     value: resumes.filter((resume)=> resume.analysisStatus === "Failed").length,
-  //   }
-  // ]:defaultStatistics;
-
 
   const statistics = defaultStatistics.map((stat)=>{
     switch(stat.title){
@@ -51,7 +31,12 @@ function Dashboard() {
       case "Average ATS Score":
         return{
           ...stat,
-          value: "N/A"
+          value: 
+          resumes.length > 0 ? Math.round(
+      resumes.reduce((sum, resumes) => sum+ (resumes.atsScore || 0), 
+      0
+    ) / resumes.length
+  ): "NA",
         }
       case "Job Matches":
         return{
@@ -82,14 +67,14 @@ function Dashboard() {
     fetchResumes()
   }, [])
 
-  // if(loading){
-  //   return <h3>Loading reusmes.....</h3>
-  // }
-  // if(error){
-  //   return <h3>{error}</h3>
-  // }
+  if(error){
+    return(
+      <div className="alert alert-danger">
+        {error}
+      </div>
+    )
+  }
 
-  const Loading = loading
 
   return (
     <>
@@ -135,7 +120,18 @@ function Dashboard() {
 
             icon={action.icon}
 
-            onClick={() => navigate(action.path)}
+            onClick={()=>{
+              if(action.title === "AI Analysis"){
+                if (resumes.length === 0){
+                  alert("No resume found")
+                  return
+                }
+
+                navigate(`/resume/${resumes[0]._id}`)
+              }else{
+                navigate(action.path)
+              }
+            }}  
 
           />
 
@@ -164,18 +160,27 @@ function Dashboard() {
     </div>
 
     {loading?(
-      <div className="text=center py-3">
+      <div className="text-center py-3">
         <div className="spinner-border text-primary"></div>
       </div>
     ): resumes.length === 0 ? (
-      <p className="text-muted">
-        No resumes uploaded
-      </p>
+      <div className="card border-0 shadow-sm">
+        <div className="card-body text-center py-5">
+          <FileText
+            size={48}
+            className="text-secondary mb-3"
+          />
+          <h5>No Resume Found</h5>
+          <p className="text-muted">
+            Upload your first resume to generate AI insights
+          </p>
+        </div>
+      </div>
     ):(
       resumes.slice(0,3).map((resume)=>(
         <RecentAnalysisCard
 
-        key={resume.id}
+        key={resume._id}
 
         resumeName={resume.originalName}
 

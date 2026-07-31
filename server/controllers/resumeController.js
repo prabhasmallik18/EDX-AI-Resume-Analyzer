@@ -73,7 +73,7 @@ const deleteResume = async(req, res) =>{
     try{
         const resume = await Resume.findById(req.params.id)
 
-        if(!resumes){
+        if(!resume){
             return res.status(404).json({
                 success: false,
                 message: "Resume not found"

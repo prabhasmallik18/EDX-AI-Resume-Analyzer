@@ -41,7 +41,6 @@ export const statistics = [
     title: "AI Analysis",
     description: "View AI insights",
     icon: Sparkles,
-    path: "/dashboard/analysis",
   },
    {
     id: 3,

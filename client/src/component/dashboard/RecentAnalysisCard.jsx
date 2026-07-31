@@ -5,7 +5,7 @@ const RecentAnalysisCard = ({resumeName, atsScore, analyzedOn}) => {
         <h6 className="mb-1">{resumeName}</h6>
         <small className="text-muted">{analyzedOn}</small>
     </div>
-    <span className="badge text-bg-success fs-6">
+    <span className="badge bg-success fs-6">
         {atsScore}
     </span>
 

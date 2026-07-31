@@ -3,25 +3,42 @@ import InputField from "../component/InputField";
 import Button from "../component/Button";
 import AuthFooter from "../component/AuthFooter";
 
+import { registerUser } from "../api/authApi";
+import { useNavigate } from "react-router-dom";
+
 import useForm from "../hooks/useForm";
 
 const Register = () => {
+
+  const navigate = useNavigate();
 
 
   const {formData, handleChange} = useForm({fullName: "",
     email: "",
     password: "",
     confirmPassword: "",})
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const handleSubmit = async (event) => {
+  event.preventDefault();
 
-    // if (!formData.email || !formData.password) {
-    //   setError("Please fill in all fields");
-    //   return;
-    // }
-    // setError("");
-    console.log(formData);
-  };
+  if (formData.password !== formData.confirmPassword) {
+    alert("Passwords do not match.");
+    return;
+  }
+
+  try {
+    const response = await registerUser({
+      name: formData.fullName,
+      email: formData.email,
+      password: formData.password,
+    });
+
+    alert(response.message);
+
+    navigate("/login");
+  } catch (error) {
+    alert(error.message);
+  }
+};
 
   return (
     <AuthCard title={"Create Account"} subtitle={"Let's get you started"}>

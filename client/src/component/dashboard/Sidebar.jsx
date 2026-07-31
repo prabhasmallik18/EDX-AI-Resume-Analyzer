@@ -9,7 +9,7 @@ const Sidebar = () => {
             <NavLink className={"text-white text-decoration-none"} to={"/dashboard/upload"}>Upload Resume</NavLink>
             <NavLink className={"text-white text-decoration-none"} to={"/dashboard/history"}>Analysis History</NavLink>
             <NavLink className={"text-white text-decoration-none"} to={"/dashboard/profile"}>Profile</NavLink>
-            <NavLink className={"text-white text-decoration-none"} to={"/dashboard/login"}>Logout</NavLink>
+            <NavLink className={"text-white text-decoration-none"} to={"/login"}>Logout</NavLink>
         </nav>
     </aside>
   )
