@@ -1,9 +1,48 @@
-*{
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+html,
+body,
+#root{
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    background: #edf3fb;
 }
 
-body{
-  font-family: sans-serif;
+h1,
+h2,
+h3,
+h4,
+h5{
+    font-weight: 700;
+}
+
+a{
+    transition: .3s;
+}
+
+a:hover{
+    transform: translateX(6px);
+}
+
+.card{
+    border: none;
+    border-radius: 18px;
+    box-shadow: 0 10px 25px rgba(0,0,0,.08);
+    transition: .3s;
+}
+
+.card:hover{
+    transform: translateY(-6px);
+}
+
+.btn{
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar{
+    width: 8px;
+}
+
+::-webkit-scrollbar-thumb{
+    background: #b8c2d6;
+    border-radius: 10px;
 }

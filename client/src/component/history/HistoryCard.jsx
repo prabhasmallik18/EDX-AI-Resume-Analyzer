@@ -1,4 +1,9 @@
-import { Eye, Trash2, CalendarDays } from "lucide-react";
+import {
+  Eye,
+  Trash2,
+  CalendarDays,
+  FileText,
+} from "lucide-react";
 
 function HistoryCard({
   resumeName,
@@ -9,19 +14,61 @@ function HistoryCard({
   onDelete,
 }) {
   return (
-    <div className="card shadow-sm border-0 mb-4">
-      <div className="card-body">
+    <div
+      className="card border-0 h-100"
+      style={{
+        borderRadius: "20px",
+        boxShadow: "0 12px 30px rgba(0,0,0,.08)",
+        transition: "all .3s ease",
+        overflow: "hidden",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "translateY(-8px)";
+        e.currentTarget.style.boxShadow =
+          "0 18px 40px rgba(37,99,235,.18)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.boxShadow =
+          "0 12px 30px rgba(0,0,0,.08)";
+      }}
+    >
+      <div
+        style={{
+          height: "5px",
+          background:
+            "linear-gradient(90deg,#2563eb,#4f46e5,#7c3aed)",
+        }}
+      />
 
-        <div className="d-flex justify-content-between align-items-start flex-wrap">
+      <div className="card-body p-4">
 
-          <div>
-            <h5 className="fw-semibold mb-2">
-              {resumeName}
-            </h5>
+        <div className="d-flex justify-content-between align-items-start">
 
-            <p className="mb-2">
+          <div className="d-flex">
+
+            <div
+              className="me-3 d-flex justify-content-center align-items-center"
+              style={{
+                width: "60px",
+                height: "60px",
+                borderRadius: "16px",
+                background:
+                  "linear-gradient(135deg,#2563eb,#4f46e5)",
+                color: "#fff",
+              }}
+            >
+              <FileText size={28} />
+            </div>
+
+            <div>
+
+              <h5 className="fw-bold mb-2">
+                {resumeName}
+              </h5>
+
               <span
-                className={`badge ${
+                className={`badge me-2 ${
                   analysisStatus === "Completed"
                     ? "bg-success"
                     : analysisStatus === "Pending"
@@ -32,39 +79,46 @@ function HistoryCard({
                 {analysisStatus}
               </span>
 
-              <span className="ms-3 badge bg-primary">
-                ATS: {atsScore || 0}%
+              <span className="badge bg-primary">
+                ATS {atsScore || 0}%
               </span>
-            </p>
 
-            <p className="text-muted mb-0">
-              <CalendarDays
-                size={16}
-                className="me-2"
-              />
-              {uploadedDate}
-            </p>
-          </div>
+              <div className="mt-3 text-muted">
 
-          <div className="d-flex gap-2 mt-3 mt-md-0">
+                <CalendarDays
+                  size={16}
+                  className="me-2"
+                />
 
-            <button
-              className="btn btn-outline-primary btn-sm"
-              onClick={onView}
-            >
-              <Eye size={16} className="me-1" />
-              View
-            </button>
+                {uploadedDate}
 
-            <button
-              className="btn btn-outline-danger btn-sm"
-              onClick={onDelete}
-            >
-              <Trash2 size={16} className="me-1" />
-              Delete
-            </button>
+              </div>
+
+            </div>
 
           </div>
+
+        </div>
+
+        <hr />
+
+        <div className="d-flex gap-3">
+
+          <button
+            className="btn btn-primary rounded-pill px-4"
+            onClick={onView}
+          >
+            <Eye size={16} className="me-2" />
+            View Analysis
+          </button>
+
+          <button
+            className="btn btn-outline-danger rounded-pill px-4"
+            onClick={onDelete}
+          >
+            <Trash2 size={16} className="me-2" />
+            Delete
+          </button>
 
         </div>
 
