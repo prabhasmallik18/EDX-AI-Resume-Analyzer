@@ -1,111 +1,142 @@
+const mongoose = require("mongoose");
 const Resume = require("../models/Resume");
-
 const fs = require("fs");
 const path = require("path");
-
-const extractedTextFromPDF = require("../utils/pdfParser")
-const {createResume} = require("../services/resumeService")
+const { createResume } = require("../services/resumeService");
 
 const uploadResume = async (req, res) => {
   try {
-    const resume = await createResume(req.file, req.user.userId)
-    res.status(200).json({
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Please select a PDF resume to upload.",
+      });
+    }
+
+    const resume = await createResume(req.file, req.user.userId);
+
+    return res.status(201).json({
       success: true,
-      message: "Resume uploaded successfully",
+      message: "Resume uploaded and analyzed successfully.",
       data: resume,
     });
   } catch (error) {
-    res.status(500).json({
+    console.error("Upload Resume Error:", error);
+
+    if (req.file?.path) {
+      try {
+        if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+      } catch (cleanupError) {
+        console.error("Upload cleanup error:", cleanupError);
+      }
+    }
+
+    return res.status(500).json({
       success: false,
-      message: error.message,
+      message: error.message || "Unable to analyze resume.",
     });
   }
 };
 
 const getMyResumes = async (req, res) => {
   try {
-    const resumes = await Resume.find({
-      user: req.user.userId,
-    }).sort({ createdAt: -1 });
+    const resumes = await Resume.find({ user: req.user.userId })
+      .sort({ createdAt: -1 })
+      .lean();
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       count: resumes.length,
       data: resumes,
     });
   } catch (error) {
-    res.status(500).json({
+    console.error("Get Resumes Error:", error);
+    return res.status(500).json({
       success: false,
-      message: error.message,
+      message: "Unable to load resume history.",
     });
   }
 };
 
-const getResumeById = async (req, res) =>{
-  try{
-     const resume = await Resume.findOne({
+const getResumeById = async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid resume ID.",
+      });
+    }
+
+    const resume = await Resume.findOne({
       _id: req.params.id,
       user: req.user.userId,
-     })
+    }).lean();
 
-     if(!resume){
+    if (!resume) {
       return res.status(404).json({
         success: false,
-        message: "Resume not found"
-      })
-     }
-     res.status(200).json({
+        message: "Resume not found.",
+      });
+    }
+
+    return res.status(200).json({
       success: true,
       data: resume,
-     })
-  }catch(error){
-    console.error("Get Resume Error:", error)
-
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    })
-  }
-}
-
-
-const deleteResume = async(req, res) =>{
-    try{
-        const resume = await Resume.findById(req.params.id)
-
-        if(!resume){
-            return res.status(404).json({
-                success: false,
-                message: "Resume not found"
-            })
-        }
-
-        if(resume.user.toString()!== req.user.userId){
-            return res.status(403).json({
-                success: false,
-                message: "Unauthorized"
-            })
-        }
-
-        const filePath = path.join(__dirname, "..", resume.filePath)
-
-        if(fs.existsSync(filePath)){
-            fs.unlinkSync(filePath)
-        }
-
-        await Resume.findByIdAndDelete(req.params.id)
-
-        res.status(200).json({
-      success: true,
-      message: "Resume deleted Successfully"
     });
-    }catch(error){
-        res.status(500).json({
-            success: false,
-            message : error.message
-        })
+  } catch (error) {
+    console.error("Get Resume Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Unable to load resume analysis.",
+    });
+  }
+};
+
+const deleteResume = async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid resume ID.",
+      });
     }
-}
+
+    const resume = await Resume.findOne({
+      _id: req.params.id,
+      user: req.user.userId,
+    });
+
+    if (!resume) {
+      return res.status(404).json({
+        success: false,
+        message: "Resume not found.",
+      });
+    }
+
+    const filePath = path.resolve(__dirname, "..", resume.filePath);
+    const uploadsDirectory = path.resolve(__dirname, "..", "uploads");
+
+    if (
+      filePath.startsWith(`${uploadsDirectory}${path.sep}`) &&
+      fs.existsSync(filePath)
+    ) {
+      fs.unlinkSync(filePath);
+    }
+
+    await Resume.deleteOne({ _id: resume._id });
+
+    return res.status(200).json({
+      success: true,
+      message: "Resume deleted successfully.",
+    });
+  } catch (error) {
+    console.error("Delete Resume Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Unable to delete resume.",
+    });
+  }
+};
 
 module.exports = {
   uploadResume,
