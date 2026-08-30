@@ -55,6 +55,11 @@ const analyzeResume = async (resumeText) => {
     const response = await ai.models.generateContent({
       model: process.env.GEMINI_MODEL || "gemini-3.6-flash",
       contents: prompt,
+      config: {
+        temperature: 0,
+        candidateCount: 1,
+        responseMimeType: "application/json",
+      },
     });
 
     const parsedResponse = parseAIResponse(response?.text);
