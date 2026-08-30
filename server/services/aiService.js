@@ -21,7 +21,11 @@ const parseAIResponse = (rawResponse) => {
       throw new Error("AI returned an invalid response.");
     }
 
-    return JSON.parse(cleanedResponse.slice(start, end + 1));
+    try {
+      return JSON.parse(cleanedResponse.slice(start, end + 1));
+    } catch {
+      throw new Error("AI returned an invalid response.");
+    }
   }
 };
 
@@ -31,6 +35,7 @@ const normalizeArray = (value) =>
         .filter((item) => typeof item === "string")
         .map((item) => item.trim())
         .filter(Boolean)
+        .slice(0, 8)
     : [];
 
 const analyzeResume = async (resumeText) => {
@@ -38,35 +43,45 @@ const analyzeResume = async (resumeText) => {
     throw new Error("Resume text is empty and cannot be analyzed.");
   }
 
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error(
+      "AI service is not configured. Add GEMINI_API_KEY to the server environment."
+    );
+  }
+
   const prompt = buildResumePrompt(resumeText);
 
-  const response = await ai.models.generateContent({
-    model: "gemini-3.6-flash",
-    contents: prompt,
-  });
+  try {
+    const response = await ai.models.generateContent({
+      model: process.env.GEMINI_MODEL || "gemini-3.6-flash",
+      contents: prompt,
+    });
 
-  const parsedResponse = parseAIResponse(response.text);
+    const parsedResponse = parseAIResponse(response?.text);
+    const atsScore = Number(parsedResponse.atsScore);
 
-  const atsScore = Number(parsedResponse.atsScore);
+    if (!Number.isFinite(atsScore) || atsScore < 1 || atsScore > 100) {
+      throw new Error("AI returned an invalid ATS score.");
+    }
 
-  if (!Number.isFinite(atsScore) || atsScore < 1 || atsScore > 100) {
-    throw new Error("AI returned an invalid ATS score.");
+    const result = {
+      atsScore: Math.round(atsScore),
+      skills: normalizeArray(parsedResponse.skills),
+      missingSkills: normalizeArray(parsedResponse.missingSkills),
+      strengths: normalizeArray(parsedResponse.strengths),
+      weaknesses: normalizeArray(parsedResponse.weaknesses),
+      suggestions: normalizeArray(parsedResponse.suggestions),
+    };
+
+    if (result.skills.length === 0 && result.suggestions.length === 0) {
+      throw new Error("AI returned an incomplete resume analysis.");
+    }
+
+    return result;
+  } catch (error) {
+    console.error("AI Analysis Error:", error.message);
+    throw new Error(error.message || "Unable to analyze resume with AI.");
   }
-
-  const result = {
-    atsScore: Math.round(atsScore),
-    skills: normalizeArray(parsedResponse.skills),
-    missingSkills: normalizeArray(parsedResponse.missingSkills),
-    strengths: normalizeArray(parsedResponse.strengths),
-    weaknesses: normalizeArray(parsedResponse.weaknesses),
-    suggestions: normalizeArray(parsedResponse.suggestions),
-  };
-
-  if (result.skills.length === 0 && result.suggestions.length === 0) {
-    throw new Error("AI returned an incomplete resume analysis.");
-  }
-
-  return result;
 };
 
 module.exports = {
