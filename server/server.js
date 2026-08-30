@@ -12,6 +12,11 @@ const app = express();
 
 const PORT = Number(process.env.PORT) || 8000;
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
+const allowedOrigins = new Set([
+  CLIENT_URL.trim(),
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+]);
 
 connectDB();
 
@@ -20,7 +25,13 @@ app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 
 app.use(
   cors({
-    origin: CLIENT_URL,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.has(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("CORS origin is not allowed."));
+    },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
@@ -64,6 +75,13 @@ app.use((err, req, res, next) => {
 
   if (err.message === "Only PDF files are allowed.") {
     return res.status(400).json({
+      success: false,
+      message: err.message,
+    });
+  }
+
+  if (err.message === "CORS origin is not allowed.") {
+    return res.status(403).json({
       success: false,
       message: err.message,
     });
