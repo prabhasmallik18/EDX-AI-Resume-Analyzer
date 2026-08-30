@@ -1,4 +1,20 @@
-const BASE_URL = "http://localhost:8000/api";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+
+const getJson = async (response, fallbackMessage) => {
+  let data = null;
+
+  try {
+    data = await response.json();
+  } catch {
+    data = null;
+  }
+
+  if (!response.ok) {
+    throw new Error(data?.message || fallbackMessage);
+  }
+
+  return data;
+};
 
 export const loginUser = async (userData) => {
   const response = await fetch(`${BASE_URL}/auth/login`, {
@@ -9,13 +25,7 @@ export const loginUser = async (userData) => {
     body: JSON.stringify(userData),
   });
 
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.message || "Login failed.");
-  }
-
-  return data;
+  return getJson(response, "Login failed.");
 };
 
 export const registerUser = async (userData) => {
@@ -27,11 +37,5 @@ export const registerUser = async (userData) => {
     body: JSON.stringify(userData),
   });
 
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.message || "Registration failed.");
-  }
-
-  return data;
+  return getJson(response, "Registration failed.");
 };
