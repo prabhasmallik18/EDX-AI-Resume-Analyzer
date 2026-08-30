@@ -105,7 +105,7 @@ const Profile = () => {
         </p>
       </div>
 
-      <ProfileHeader name={user?.name || "User"} email={user?.email || ""} />
+      <ProfileHeader name={user?.name || "Vadali Prabhas"} email={user?.email || ""} />
 
       <div className="mt-4">
         <ProfileStats
