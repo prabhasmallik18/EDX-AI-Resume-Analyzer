@@ -42,14 +42,12 @@ const Profile = () => {
       const highestATS = scores.length > 0 ? Math.max(...scores) : 0;
       const averageATS =
         scores.length > 0
-          ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length)
+          ? Math.round(
+              scores.reduce((sum, score) => sum + score, 0) / scores.length
+            )
           : 0;
 
-      setStats({
-        totalResumes,
-        averageATS,
-        highestATS,
-      });
+      setStats({ totalResumes, averageATS, highestATS });
     } catch (profileError) {
       setError(profileError.message || "Unable to load profile.");
     } finally {
@@ -83,7 +81,10 @@ const Profile = () => {
           <AlertCircle size={48} className="text-danger mb-3" />
           <h4 className="fw-bold">Unable to Load Profile</h4>
           <p className="text-muted mb-4">{error}</p>
-          <button className="btn btn-primary rounded-pill px-4" onClick={fetchProfile}>
+          <button
+            className="btn btn-primary rounded-pill px-4"
+            onClick={fetchProfile}
+          >
             Try Again
           </button>
         </div>
@@ -105,7 +106,10 @@ const Profile = () => {
         </p>
       </div>
 
-      <ProfileHeader name={user?.name || "User"} email={user?.email || ""} />
+      <ProfileHeader
+        name={user?.name || "User"}
+        email={user?.email || ""}
+      />
 
       <div className="mt-4">
         <ProfileStats
@@ -116,7 +120,10 @@ const Profile = () => {
       </div>
 
       <style>
-        {`@keyframes profile-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}
+        {`@keyframes profile-spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }`}
       </style>
     </div>
   );
