@@ -1,63 +1,63 @@
-const BASE_URL = "http://localhost:8000/api"
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
-export const uploadResume  = async (file, token) =>{
-    const formData = new FormData();
+const getJson = async (response, fallbackMessage) => {
+  let data = null;
 
-    formData.append("resume", file)
+  try {
+    data = await response.json();
+  } catch {
+    data = null;
+  }
 
-    const response = await fetch(`${BASE_URL}/resume/upload`,{
-        method: "POST",
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-    })
+  if (!response.ok) {
+    throw new Error(data?.message || fallbackMessage);
+  }
 
-    const data = await response.json();
+  return data;
+};
 
-    if(!response.ok){
-        throw new Error(data.message || "Upload failed.")
-    }
+export const uploadResume = async (file, token) => {
+  const formData = new FormData();
+  formData.append("resume", file);
 
-    return data
-}
+  const response = await fetch(`${BASE_URL}/resume/upload`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
 
+  return getJson(response, "Upload failed.");
+};
 
-export const getMyResumes = async(token) =>{
-    const response = await fetch(`${BASE_URL}/resume/my-resumes`,{
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    })
+export const getMyResumes = async (token) => {
+  const response = await fetch(`${BASE_URL}/resume/my-resumes`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
-    const data = await response.json();
+  return getJson(response, "Unable to load resumes.");
+};
 
-    if(!response.ok){
-        throw new Error(data.message)
-    }
+export const getResumeById = async (id, token) => {
+  const response = await fetch(`${BASE_URL}/resume/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
-    return data
+  return getJson(response, "Unable to load resume analysis.");
+};
 
-}
+export const deleteResume = async (id, token) => {
+  const response = await fetch(`${BASE_URL}/resume/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
-
-export const deleteResume = async(id, token) =>{
-    const response = await fetch(`${BASE_URL}/resume/${id}`,
-        {
-            method: "DELETE",
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        }
-    )
-
-    const data = await response.json();
-
-    if(!response.ok){
-        throw new Error(data.message)
-    }
-
-    return data
-
-
-}
+  return getJson(response, "Unable to delete resume.");
+};
