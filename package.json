@@ -1,0 +1,17 @@
+{
+  "name": "edx-ai-resume-analyzer-root",
+  "version": "2.1.0",
+  "private": true,
+  "description": "Full-stack EDX AI Resume Analyzer with built-in ATS engine and job matching",
+  "scripts": {
+    "install:all": "npm --prefix server install && npm --prefix client install",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "dev": "npx concurrently -n \"SERVER,CLIENT\" -c \"blue,green\" \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
+    "build": "npm --prefix client run build",
+    "test": "npm --prefix server test"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

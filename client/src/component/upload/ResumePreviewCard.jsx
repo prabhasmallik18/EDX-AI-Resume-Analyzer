@@ -21,7 +21,12 @@ const ResumePreviewCard = ({ file, onRemove }) => {
               <small className="text-muted">{formatFileSize(file.size)}</small>
             </div>
           </div>
-          <button className="btn btn-outline-danger btn-sm" onClick={onRemove}>
+          <button
+            type="button"
+            className="btn btn-outline-danger btn-sm"
+            onClick={onRemove}
+            title="Remove selected resume"
+          >
             <Trash2 size={18} />
           </button>
         </div>

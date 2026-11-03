@@ -8,32 +8,43 @@ A full stack web app that analyses a PDF resume with its own built-in analysis e
 ## Features
 
 - Register / login (JWT, bcrypt) with protected pages and real logout
-- Upload a PDF resume (real PDF check, 5 MB limit) and get an analysis: ATS score, 5-part score breakdown **with the evidence for each part**, skills, strengths, weaknesses, suggestions
+- Upload a PDF resume (real PDF check, 5 MB limit) or test instantly with **1-click Sample Resumes (Strong, Average, Weak)**
+- Get an ATS score with a 5-part score breakdown **with the evidence for each part**, skills, strengths, weaknesses, and suggestions
 - **Re-analyze** any saved resume with the current engine, without uploading again
-- **Job Match:** paste a job description and get a match score, keywords you have / are missing, and tailoring advice. The score blends keyword coverage, text similarity (cosine similarity) and job-title match. The same input always gives the same result
+- **Job Match:** paste a job description and get a match score, keywords you have / are missing, and tailoring advice. The score blends keyword coverage, text similarity (cosine similarity) and job-title match
 - Dashboard with real statistics and an ATS score progress chart
 - Analysis history, delete, duplicate-resume detection
-- "Download Report" (print to PDF)
+- **Export options:** "Download Report" (print to PDF) & "Export JSON" (full structured data export) & "Copy Suggestions"
 - Security: helmet headers, rate limiting (login, and per-user on AI endpoints), upload cleanup, path-safe deletes, prompt-injection guard
-- Automated tests for the backend (`npm test`), including real sample PDFs in `server/tests/fixtures/` that you can also upload to try the app
+- Automated tests for the backend (`npm test`), including real sample PDFs
 
 ## Run it locally
 
-1. Install Node 20+ and MongoDB (or use a free MongoDB Atlas URL).
-2. Copy `.env.example` to `server/.env` and fill `MONGO_URI` and `JWT_SECRET`. **No AI key is needed.** (Optional: set `ANALYSIS_ENGINE=hybrid` and add `GEMINI_API_KEY` to get extra written advice from Gemini.)
-3. Backend:
+### Option 1: 1-Click Launch (Recommended)
+- **Windows:** Double-click `start.bat` (automatically installs missing dependencies, starts backend & frontend, and opens http://localhost:5173).
+- **macOS / Linux:** Run `chmod +x start.sh && ./start.sh`.
+
+### Option 2: Using npm from root
+```bash
+npm run install:all
+npm run dev
+```
+
+### Option 3: Manual Startup
+1. Ensure Node 20+ and MongoDB are installed (or set a free MongoDB Atlas URL in `server/.env`).
+2. Backend:
    ```bash
    cd server
    npm install
    npm run dev
    ```
-4. Frontend (new terminal):
+3. Frontend (in a new terminal):
    ```bash
    cd client
    npm install
    npm run dev
    ```
-5. Open http://localhost:5173
+4. Open http://localhost:5173
 
 ## How the analysis engine works
 

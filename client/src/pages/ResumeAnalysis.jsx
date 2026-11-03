@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Printer, RefreshCw, Cpu } from "lucide-react";
+import { ArrowLeft, Printer, RefreshCw, Cpu, Download } from "lucide-react";
 
 import ATSScoreCard from "../component/analysis/ATSScoreCard";
 import SkillsCard from "../component/analysis/SkillsCard";
@@ -60,6 +60,37 @@ const ResumeAnalysis = () => {
     } finally {
       setReanalyzing(false);
     }
+  };
+
+  const handleExportJSON = () => {
+    if (!resume) return;
+    const exportData = {
+      resumeName: resume.originalName,
+      analyzedAt: resume.createdAt,
+      atsScore: resume.atsScore,
+      engine: resume.engine,
+      scoreBreakdown: resume.scoreBreakdown,
+      insights: resume.insights,
+      skills: resume.skills,
+      missingSkills: resume.missingSkills,
+      strengths: resume.strengths,
+      weaknesses: resume.weaknesses,
+      suggestions: resume.suggestions,
+      jobMatches: resume.jobMatches,
+    };
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const safeName = (resume.originalName || "resume").replace(/\.[^/.]+$/, "");
+    link.href = url;
+    link.download = `${safeName}-ats-analysis.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   if (loading) {
@@ -162,6 +193,14 @@ const ResumeAnalysis = () => {
             >
               <Printer size={16} className="me-2" />
               Download Report
+            </button>
+            <button
+              className="btn btn-outline-light rounded-pill px-4"
+              onClick={handleExportJSON}
+              title="Download analysis data as a JSON file"
+            >
+              <Download size={16} className="me-2" />
+              Export JSON
             </button>
             <button
               className="btn btn-light rounded-pill px-4"

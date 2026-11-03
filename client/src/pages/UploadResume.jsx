@@ -46,6 +46,31 @@ const UploadResume = () => {
     handleSelectedFile(event.target.files?.[0]);
   };
 
+  const handleLoadSample = async (type) => {
+    if (loading) return;
+    setError("");
+    setSuccess("");
+
+    const filenames = {
+      strong: { file: "sample-strong-resume.pdf", name: "Alex-Rivera-FullStack-Resume.pdf" },
+      average: { file: "sample-average-resume.pdf", name: "Jordan-Lee-Average-Resume.pdf" },
+      weak: { file: "sample-weak-resume.pdf", name: "Taylor-Smith-Weak-Resume.pdf" },
+    };
+
+    const target = filenames[type];
+    if (!target) return;
+
+    try {
+      const res = await fetch(`/samples/${target.file}`);
+      if (!res.ok) throw new Error("Could not load sample PDF.");
+      const blob = await res.blob();
+      const sampleFile = new File([blob], target.name, { type: "application/pdf" });
+      handleSelectedFile(sampleFile);
+    } catch {
+      setError("Unable to load sample resume. You can still upload your own PDF.");
+    }
+  };
+
   const handleUpload = async (event) => {
     event.preventDefault();
 
@@ -179,9 +204,40 @@ const UploadResume = () => {
               : "Drag & Drop your PDF resume here or click anywhere to browse"}
           </p>
 
-          <p className="text-muted small mb-4">
+          <p className="text-muted small mb-3">
             PDF only • Maximum file size: 5 MB
           </p>
+
+          <div
+            className="d-flex align-items-center justify-content-center gap-2 mb-4 flex-wrap"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span className="small text-muted fw-semibold me-1">Try a sample:</span>
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-primary rounded-pill px-3"
+              onClick={() => handleLoadSample("strong")}
+              disabled={loading}
+            >
+              ⭐ Strong (90+ ATS)
+            </button>
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-secondary rounded-pill px-3"
+              onClick={() => handleLoadSample("average")}
+              disabled={loading}
+            >
+              📄 Average (~60 ATS)
+            </button>
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-warning rounded-pill px-3"
+              onClick={() => handleLoadSample("weak")}
+              disabled={loading}
+            >
+              ⚠️ Weak (&lt;40 ATS)
+            </button>
+          </div>
 
           <input
             ref={fileInputRef}
