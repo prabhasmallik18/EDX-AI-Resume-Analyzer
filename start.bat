@@ -34,7 +34,7 @@ start "Backend Server" cmd /k "cd server && npm run dev"
 start "Frontend Client" cmd /k "cd client && npm run dev"
 
 :: Wait 3 seconds for Vite dev server to bind then open browser
-timeout /t 3 >nul
+timeout /t 3 /nobreak >nul 2>&1 || ping 127.0.0.1 -n 4 >nul
 start http://localhost:5173
 
 echo.
