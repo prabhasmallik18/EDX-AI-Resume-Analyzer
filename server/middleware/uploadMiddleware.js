@@ -1,11 +1,16 @@
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
+
+// Always use the real folder next to server.js, no matter where "node" was started from.
+const UPLOAD_DIR = path.join(__dirname, "..", "uploads");
+fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/");
+    cb(null, UPLOAD_DIR);
   },
 
   filename: (req, file, cb) => {
@@ -37,3 +42,4 @@ const upload = multer({
 });
 
 module.exports = upload;
+module.exports.UPLOAD_DIR = UPLOAD_DIR;

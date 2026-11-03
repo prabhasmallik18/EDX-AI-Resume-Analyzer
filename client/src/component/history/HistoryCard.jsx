@@ -1,3 +1,4 @@
+import { scoreMeta } from "../../utils/scoreUtils";
 import {
   Eye,
   Trash2,
@@ -83,7 +84,11 @@ function HistoryCard({
                 {analysisStatus}
               </span>
 
-              <span className="badge bg-primary">
+              <span
+                className={`badge text-bg-${
+                  typeof atsScore === "number" ? scoreMeta(atsScore).color : "secondary"
+                }`}
+              >
                 ATS {typeof atsScore === "number" ? `${atsScore}%` : "—"}
               </span>
 

@@ -6,6 +6,7 @@ import ProfileStats from "../component/profile/ProfileStats";
 
 import { getProfile } from "../api/userApi";
 import { getMyResumes } from "../api/resumeApi";
+import { getToken, getUser } from "../utils/auth";
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -22,13 +23,14 @@ const Profile = () => {
       setLoading(true);
       setError("");
 
-      const token = localStorage.getItem("token");
+      const token = getToken();
       const [profileResponse, resumeResponse] = await Promise.all([
         getProfile(token),
         getMyResumes(token),
       ]);
 
-      setUser(profileResponse?.data?.data || null);
+      // the server answers { success, data: user }, and getProfile already returns that body
+      setUser(profileResponse?.data || null);
 
       const resumes = resumeResponse?.data || [];
       const completedResumes = resumes.filter(
@@ -105,7 +107,10 @@ const Profile = () => {
         </p>
       </div>
 
-      <ProfileHeader name={user?.name || "Vadali Prabhas"} email={user?.email || ""} />
+      <ProfileHeader
+        name={user?.name || getUser()?.name || "User"}
+        email={user?.email || getUser()?.email || ""}
+      />
 
       <div className="mt-4">
         <ProfileStats

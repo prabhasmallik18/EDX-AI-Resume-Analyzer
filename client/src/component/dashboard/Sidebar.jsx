@@ -1,4 +1,5 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { clearSession } from "../../utils/auth";
 import {
   FaHome,
   FaUpload,
@@ -8,6 +9,13 @@ import {
 } from "react-icons/fa";
 
 const Sidebar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    clearSession();
+    navigate("/login", { replace: true });
+  };
+
   const menu = [
     {
       name: "Dashboard",
@@ -73,13 +81,14 @@ const Sidebar = () => {
 
       {/* Logout */}
       <div className="p-3">
-        <NavLink
-          to="/login"
+        <button
+          type="button"
           className="btn btn-danger w-100"
+          onClick={handleLogout}
         >
           <FaSignOutAlt className="me-2" />
           Logout
-        </NavLink>
+        </button>
       </div>
     </aside>
   );

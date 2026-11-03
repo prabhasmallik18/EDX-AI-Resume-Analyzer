@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { CheckCircle2, FileText, LoaderCircle, Upload, XCircle } from "lucide-react";
 
 import { uploadResume } from "../api/resumeApi";
@@ -7,6 +8,7 @@ import ResumePreviewCard from "../component/upload/ResumePreviewCard";
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 const UploadResume = () => {
+  const navigate = useNavigate();
   const [selectedFile, setSelectedFile] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -63,6 +65,11 @@ const UploadResume = () => {
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
+
+      // Show the finished report straight away.
+      if (response.data?._id) {
+        navigate(`/resume/${response.data._id}`);
+      }
     } catch (uploadError) {
       setError(uploadError.message || "Resume upload failed. Please try again.");
     } finally {
@@ -114,7 +121,7 @@ const UploadResume = () => {
       >
         <h2 className="fw-bold mb-2">📄 Upload Resume</h2>
         <p className="mb-0 opacity-75">
-          Upload your resume and receive an AI-powered ATS analysis within seconds.
+          Upload your resume and get an instant ATS analysis with clear, evidence-based feedback.
         </p>
       </div>
 
@@ -166,7 +173,7 @@ const UploadResume = () => {
 
           <p className="text-muted fs-5 mb-3">
             {loading
-              ? "Your PDF is being processed and analyzed by AI. Please wait."
+              ? "Your PDF is being read and analysed. Please wait."
               : dragActive
               ? "Drop your PDF resume here"
               : "Drag & Drop your PDF resume here or click anywhere to browse"}

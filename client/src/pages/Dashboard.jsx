@@ -5,14 +5,17 @@ import { FileText } from "lucide-react";
 import StatCard from "../component/dashboard/StatCard";
 import QuickActionCards from "../component/dashboard/QuickActionCards";
 import RecentAnalysisCard from "../component/dashboard/RecentAnalysisCard";
+import ScoreTrendCard from "../component/dashboard/ScoreTrendCard";
 
 import { statistics as defaultStatistics, quickActions } from "../data/dashboard";
-import { getMyResumes } from "../api/resumeApi";
+import { getMyResumes, getResumeStats } from "../api/resumeApi";
+import { getToken, getUser } from "../utils/auth";
 
 function Dashboard() {
   const navigate = useNavigate();
 
   const [resumes, setResumes] = useState([]);
+  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -43,19 +46,19 @@ function Dashboard() {
       case "Average ATS Score":
         return {
           ...stat,
-          value: averageATS,
+          value: averageATS === "NA" ? "NA" : `${averageATS}%`,
         };
 
       case "Job Matches":
         return {
           ...stat,
-          value: "—",
+          value: stats?.totalJobMatches ?? 0,
         };
 
-      case "Uploads":
+      case "Best ATS Score":
         return {
           ...stat,
-          value: resumes.length,
+          value: stats?.bestScore != null ? `${stats.bestScore}%` : "NA",
         };
 
       default:
@@ -69,9 +72,13 @@ function Dashboard() {
         setLoading(true);
         setError("");
 
-        const token = localStorage.getItem("token");
-        const response = await getMyResumes(token);
+        const token = getToken();
+        const [response, statsResponse] = await Promise.all([
+          getMyResumes(token),
+          getResumeStats(token),
+        ]);
         setResumes(response.data || []);
+        setStats(statsResponse.data || null);
       } catch (error) {
         setError(error.message || "Unable to load dashboard data.");
       } finally {
@@ -88,7 +95,7 @@ function Dashboard() {
     );
 
     if (!latestCompletedResume) {
-      alert("No completed resume analysis found.");
+      alert("No completed resume analysis found. Upload a resume first.");
       return;
     }
 
@@ -122,9 +129,9 @@ function Dashboard() {
           background: "linear-gradient(135deg,#2563eb,#4f46e5)",
         }}
       >
-        <h2 className="fw-bold mb-2">Welcome Back 👋</h2>
+        <h2 className="fw-bold mb-2">Welcome Back{getUser()?.name ? `, ${getUser().name.split(" ")[0]}` : ""} 👋</h2>
         <p className="mb-0 opacity-75">
-          Track your resume performance and AI insights from one place.
+          Track your resume performance and improvements from one place.
         </p>
       </div>
 
@@ -136,10 +143,22 @@ function Dashboard() {
               title={stat.title}
               value={loading ? "..." : stat.value}
               icon={stat.icon}
+              hint={stat.hint}
             />
           </div>
         ))}
       </div>
+
+      {/* Score progress */}
+      {!loading && (
+        <div className="mb-5">
+          <ScoreTrendCard
+            trend={stats?.trend || []}
+            improvement={stats?.improvement || 0}
+            onSelect={(id) => navigate(`/resume/${id}`)}
+          />
+        </div>
+      )}
 
       {/* Main Section */}
       <div className="row g-4">
@@ -155,7 +174,7 @@ function Dashboard() {
                   description={action.description}
                   icon={action.icon}
                   onClick={() => {
-                    if (action.title === "AI Analysis") {
+                    if (action.title === "Latest Report") {
                       handleAIAnalysis();
                     } else {
                       navigate(action.path);
@@ -191,7 +210,7 @@ function Dashboard() {
                 <FileText size={48} className="text-secondary mb-3" />
                 <h5>No Resume Found</h5>
                 <p className="text-muted mb-4">
-                  Upload your first resume to generate AI insights.
+                  Upload your first resume to get your ATS report.
                 </p>
                 <button
                   className="btn btn-primary rounded-pill px-4"

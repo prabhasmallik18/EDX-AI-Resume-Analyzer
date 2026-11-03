@@ -4,7 +4,8 @@ body,
   margin: 0;
   padding: 0;
   min-height: 100%;
-  overflow-x: hidden;
+  /* "clip" hides sideways overflow like "hidden" does, but unlike "hidden" it keeps the sticky sidebar working */
+  overflow-x: clip;
   background: #edf3fb;
 }
 
@@ -46,11 +47,23 @@ select:focus-visible {
   outline-offset: 2px;
 }
 
+/* Sidebar on the left, page on the right. The sidebar stays in place while the page scrolls. */
 .dashboard-layout {
+  display: flex;
   min-height: 100vh;
 }
 
+.dashboard-layout > aside {
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100vh;
+  overflow-y: auto;
+}
+
 .dashboard-content {
+  flex: 1 1 auto;
   min-width: 0;
 }
 
@@ -62,6 +75,18 @@ select:focus-visible {
 @media (max-width: 767.98px) {
   .dashboard-main {
     padding: 16px;
+  }
+
+  /* On phones the menu goes on top instead of eating half the screen. */
+  .dashboard-layout {
+    flex-direction: column;
+  }
+
+  .dashboard-layout > aside {
+    position: static;
+    width: 100% !important;
+    height: auto;
+    min-height: 0 !important;
   }
 }
 
@@ -77,4 +102,47 @@ select:focus-visible {
 
 ::-webkit-scrollbar-track {
   background: transparent;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* "Download Report" uses the browser print window -> Save as PDF. Hide the app chrome. */
+@media print {
+  .dashboard-layout {
+    display: block;
+  }
+
+  aside,
+  header,
+  .no-print {
+    display: none !important;
+  }
+
+  .dashboard-main {
+    padding: 0 !important;
+  }
+
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #dee2e6 !important;
+    break-inside: avoid;
+  }
+
+  body,
+  html,
+  #root {
+    background: #fff !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }

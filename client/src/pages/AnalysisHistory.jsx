@@ -100,7 +100,7 @@ const AnalysisHistory = () => {
           <div className="card-body text-center py-5">
             <h4 className="fw-bold">No Resume History Found</h4>
             <p className="text-muted mb-4">
-              Upload your first resume to start using AI Resume Analyzer.
+              Upload your first resume to start using Resume Analyzer.
             </p>
             <button
               className="btn btn-primary rounded-pill px-4"

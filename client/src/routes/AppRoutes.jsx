@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import MainLayout from "../layouts/MainLayout";
 import AuthLayout from "../layouts/AuthLayout";
@@ -13,6 +13,7 @@ import AnalysisHistory from "../pages/AnalysisHistory";
 import Profile from "../pages/Profile";
 import ResumeAnalysis from "../pages/ResumeAnalysis";
 import Home from "../pages/Home";
+import ProtectedRoute from "./ProtectedRoute";
 
 const AppRoutes = () => {
   return (
@@ -27,12 +28,14 @@ const AppRoutes = () => {
           <Route path="/register" element={<Register />} />
         </Route>
 
-        <Route element={<DashboardLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/dashboard/upload" element={<UploadResume />} />
-          <Route path="/dashboard/history" element={<AnalysisHistory />} />
-          <Route path="/dashboard/profile" element={<Profile />} />
-          <Route path="/resume/:id" element={<ResumeAnalysis />} />
+        <Route element={<ProtectedRoute />}>
+          <Route element={<DashboardLayout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard/upload" element={<UploadResume />} />
+            <Route path="/dashboard/history" element={<AnalysisHistory />} />
+            <Route path="/dashboard/profile" element={<Profile />} />
+            <Route path="/resume/:id" element={<ResumeAnalysis />} />
+          </Route>
         </Route>
 
         <Route path="*" element={<NotFound />} />

@@ -1,30 +1,34 @@
-import {BadgePercent, BriefcaseBusiness, FileText, History, Sparkles, Upload, User} from "lucide-react"
+import {BadgePercent, BriefcaseBusiness, FileText, History, Sparkles, Trophy, Upload, User} from "lucide-react"
 
 
 export const statistics = [
   {
     id: 1, 
     title: "Total Resumes",
-    value: 12,
+    hint: "Uploaded so far",
+    value: 0,
     icon: FileText,
   },
   {
     id: 2,
     title: "Average ATS Score",
+    hint: "Across all resumes",
     icon: BadgePercent,
-    value: "91%"
+    value: "NA"
   },
   {
     id:3,
     title: "Job Matches",
-    value: 8,
+    hint: "Jobs you compared",
+    value: 0,
     icon: BriefcaseBusiness
   },
   {
     id: 4,
-    title: "Uploads",
-    value: 5,
-    icon: Upload,
+    title: "Best ATS Score",
+    hint: "Your highest result",
+    value: "NA",
+    icon: Trophy,
   }
 ]
 
@@ -32,14 +36,14 @@ export const statistics = [
   {
     id:1, 
     title: "Upload Resume",
-    description: "Upload your PDF Resume for AI Analysis",
+    description: "Upload your PDF resume for instant analysis",
     icon: Upload,
     path: "/dashboard/upload"
   },
   {
     id: 2,
-    title: "AI Analysis",
-    description: "View AI insights",
+    title: "Latest Report",
+    description: "Open your newest analysis",
     icon: Sparkles,
   },
    {

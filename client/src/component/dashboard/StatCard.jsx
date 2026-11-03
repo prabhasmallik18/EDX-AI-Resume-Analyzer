@@ -1,4 +1,4 @@
-const StatCard = ({ title, icon: Icon, value }) => {
+const StatCard = ({ title, icon: Icon, value, hint }) => {
   return (
     <div
       className="card h-100 border-0"
@@ -55,9 +55,7 @@ const StatCard = ({ title, icon: Icon, value }) => {
               {value}
             </h2>
 
-            <small className="text-muted">
-              Updated just now
-            </small>
+            {hint && <small className="text-muted">{hint}</small>}
 
           </div>
 

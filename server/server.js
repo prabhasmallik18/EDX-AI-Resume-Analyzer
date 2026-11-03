@@ -1,97 +1,29 @@
 require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
 
 const connectDB = require("./config/db");
-
-const authRoutes = require("./routes/authRoutes");
-const resumeRoutes = require("./routes/resumeRoutes");
-const userRoutes = require("./routes/userRoutes");
-
-const app = express();
+const app = require("./app");
 
 const PORT = Number(process.env.PORT) || 8000;
-const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
-const allowedOrigins = new Set([
-  CLIENT_URL.trim(),
-  "http://localhost:5173",
-  "http://127.0.0.1:5173",
-]);
+
+// Stop immediately with a clear message instead of failing later in a confusing way.
+const missing = ["MONGO_URI", "JWT_SECRET"].filter((name) => !process.env[name]);
+
+if (missing.length > 0) {
+  console.error(
+    `Missing required environment variable(s): ${missing.join(", ")}.\n` +
+      "Copy .env.example to server/.env and fill the values."
+  );
+  process.exit(1);
+}
+
+const engine = String(process.env.ANALYSIS_ENGINE || "local").toLowerCase();
+console.log(`Analysis engine: ${engine === "hybrid" ? "hybrid (built-in + Gemini)" : "built-in (no AI key needed)"}`);
+
+if (engine === "hybrid" && !process.env.GEMINI_API_KEY) {
+  console.warn("Warning: ANALYSIS_ENGINE=hybrid but GEMINI_API_KEY is empty. The built-in engine will be used.");
+}
 
 connectDB();
-
-app.use(express.json({ limit: "1mb" }));
-app.use(express.urlencoded({ extended: true, limit: "1mb" }));
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.has(origin)) {
-        return callback(null, true);
-      }
-
-      return callback(new Error("CORS origin is not allowed."));
-    },
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
-
-app.get("/", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "AI Resume Analyzer Backend is Running",
-  });
-});
-
-app.get("/api/health", (req, res) => {
-  res.status(200).json({
-    success: true,
-    status: "healthy",
-    timestamp: new Date().toISOString(),
-  });
-});
-
-app.use("/api/auth", authRoutes);
-app.use("/api/resume", resumeRoutes);
-app.use("/api/users", userRoutes);
-
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "API route not found",
-  });
-});
-
-app.use((err, req, res, next) => {
-  console.error("Server Error:", err);
-
-  if (err.code === "LIMIT_FILE_SIZE") {
-    return res.status(400).json({
-      success: false,
-      message: "File size must be less than 5 MB.",
-    });
-  }
-
-  if (err.message === "Only PDF files are allowed.") {
-    return res.status(400).json({
-      success: false,
-      message: err.message,
-    });
-  }
-
-  if (err.message === "CORS origin is not allowed.") {
-    return res.status(403).json({
-      success: false,
-      message: err.message,
-    });
-  }
-
-  return res.status(500).json({
-    success: false,
-    message: err.message || "Internal server error.",
-  });
-});
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

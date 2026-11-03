@@ -1,3 +1,4 @@
+import { scoreMeta } from "../../utils/scoreUtils";
 const RecentAnalysisCard = ({
   resumeName,
   atsScore,
@@ -49,10 +50,8 @@ const RecentAnalysisCard = ({
 
           <div className="text-end flex-shrink-0">
             <span
-              className="badge"
+              className={`badge text-bg-${scoreMeta(parseInt(atsScore, 10)).color}`}
               style={{
-                background:
-                  "linear-gradient(135deg,#22c55e,#16a34a)",
                 padding: "10px 16px",
                 borderRadius: "12px",
                 fontSize: "15px",
@@ -62,13 +61,13 @@ const RecentAnalysisCard = ({
             </span>
 
             <div
-              className="text-success mt-2"
+              className="text-muted mt-2"
               style={{
                 fontSize: "13px",
                 fontWeight: "600",
               }}
             >
-              AI Completed
+              Analysis complete
             </div>
           </div>
         </div>

@@ -1,20 +1,35 @@
-const express = require("express")
+const express = require("express");
 
-const protect = require("../middleware/authMiddleware")
-const upload = require("../middleware/uploadMiddleware")
+const protect = require("../middleware/authMiddleware");
+const upload = require("../middleware/uploadMiddleware");
+const { aiLimiter } = require("../middleware/rateLimiters");
 
-const {uploadResume, getMyResumes, deleteResume, getResumeById} = require("../controllers/resumeController")
+const {
+  uploadResume,
+  getMyResumes,
+  deleteResume,
+  getResumeById,
+  matchJob,
+  reanalyzeResume,
+  getStats,
+} = require("../controllers/resumeController");
 
+const router = express.Router();
 
-const router = express.Router()
+// aiLimiter = max requests per hour, because every upload / match uses the AI quota.
+router.post("/upload", protect, aiLimiter, upload.single("resume"), uploadResume);
 
- router.post("/upload", protect, upload.single("resume"), uploadResume)
+router.get("/my-resumes", protect, getMyResumes);
 
- router.get("/my-resumes", protect, getMyResumes)
+// IMPORTANT: "/stats" must stay ABOVE "/:id", otherwise Express treats "stats" as an id.
+router.get("/stats", protect, getStats);
 
- router.get("/:id", protect, getResumeById)
+router.post("/:id/match", protect, aiLimiter, matchJob);
 
- router.delete("/:id", protect, deleteResume)
+router.post("/:id/reanalyze", protect, aiLimiter, reanalyzeResume);
 
+router.get("/:id", protect, getResumeById);
 
- module.exports = router;
+router.delete("/:id", protect, deleteResume);
+
+module.exports = router;

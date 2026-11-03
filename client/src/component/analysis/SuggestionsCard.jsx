@@ -3,7 +3,7 @@ function SuggestionsCard({ suggestions = [] }) {
     <div className="card shadow-sm border-0 h-100">
       <div className="card-body">
         <h5 className="mb-4 text-primary">
-          AI Suggestions
+          Suggestions to improve
         </h5>
 
         {suggestions.length === 0 ? (

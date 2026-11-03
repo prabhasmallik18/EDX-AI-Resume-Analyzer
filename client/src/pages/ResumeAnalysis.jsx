@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, RefreshCw } from "lucide-react";
+import { ArrowLeft, Printer, RefreshCw, Cpu } from "lucide-react";
 
 import ATSScoreCard from "../component/analysis/ATSScoreCard";
 import SkillsCard from "../component/analysis/SkillsCard";
@@ -8,7 +8,15 @@ import MissingSkillsCard from "../component/analysis/MissingSkillsCard";
 import StrengthsCard from "../component/analysis/StrengthsCard";
 import WeaknessesCard from "../component/analysis/WeaknessesCard";
 import SuggestionsCard from "../component/analysis/SuggestionsCard";
-import { getResumeById } from "../api/resumeApi";
+import ScoreBreakdownCard from "../component/analysis/ScoreBreakdownCard";
+import JobMatchCard from "../component/analysis/JobMatchCard";
+import { getResumeById, reanalyzeResume } from "../api/resumeApi";
+import { getToken } from "../utils/auth";
+
+const ENGINE_LABELS = {
+  local: "Built-in analysis engine",
+  hybrid: "Built-in engine + Gemini advice",
+};
 
 const ResumeAnalysis = () => {
   const { id } = useParams();
@@ -17,14 +25,15 @@ const ResumeAnalysis = () => {
   const [resume, setResume] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [reanalyzing, setReanalyzing] = useState(false);
+  const [actionError, setActionError] = useState("");
 
-  const fetchResume = async () => {
+  const fetchResume = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
 
-      const token = localStorage.getItem("token");
-      const response = await getResumeById(id, token);
+      const response = await getResumeById(id, getToken());
 
       setResume(response.data);
     } catch (err) {
@@ -32,11 +41,26 @@ const ResumeAnalysis = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     fetchResume();
-  }, [id]);
+  }, [fetchResume]);
+
+  const handleReanalyze = async () => {
+    try {
+      setReanalyzing(true);
+      setActionError("");
+
+      const response = await reanalyzeResume(id, getToken());
+
+      setResume(response.data);
+    } catch (err) {
+      setActionError(err.message || "Could not analyse this resume again.");
+    } finally {
+      setReanalyzing(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -47,7 +71,7 @@ const ResumeAnalysis = () => {
               className="spinner-border text-primary"
               style={{ width: "3rem", height: "3rem" }}
             />
-            <h4 className="fw-bold mt-4">Loading AI Analysis...</h4>
+            <h4 className="fw-bold mt-4">Loading your report...</h4>
             <p className="text-muted mb-0">
               Please wait while we prepare your resume report.
             </p>
@@ -90,6 +114,9 @@ const ResumeAnalysis = () => {
     ? new Date(resume.createdAt).toLocaleDateString()
     : "Not available";
 
+  const engineLabel = ENGINE_LABELS[resume?.engine];
+  const isOldAnalysis = !resume?.engine || resume.engine === "gemini";
+
   return (
     <div className="container-fluid">
       <div
@@ -100,26 +127,66 @@ const ResumeAnalysis = () => {
       >
         <div className="d-flex justify-content-between align-items-start gap-3 flex-wrap">
           <div>
-            <h2 className="fw-bold mb-2">🤖 AI Resume Analysis</h2>
+            <h2 className="fw-bold mb-2">📊 Resume Analysis</h2>
             <p className="mb-2 opacity-75">
-              Review your ATS score, skills, strengths, weaknesses and AI recommendations.
+              Review your ATS score, how it was calculated, your skills, strengths, weaknesses and
+              recommendations.
             </p>
             <div className="small opacity-75">
-              <strong>Resume:</strong> {resume?.originalName || "Resume"} &nbsp;•&nbsp; 
+              <strong>Resume:</strong> {resume?.originalName || "Resume"} &nbsp;•&nbsp;
               <strong>Analyzed:</strong> {analyzedDate} &nbsp;•&nbsp;
               <strong>Status:</strong> {resume?.analysisStatus || "Completed"}
             </div>
+            <div className="mt-2">
+              <span className="badge text-bg-light d-inline-flex align-items-center gap-1">
+                <Cpu size={13} />
+                {engineLabel || "Analysed with an earlier version"}
+              </span>
+            </div>
           </div>
 
-          <button
-            className="btn btn-light rounded-pill px-4"
-            onClick={() => navigate("/dashboard/history")}
-          >
-            <ArrowLeft size={16} className="me-2" />
-            Back
-          </button>
+          <div className="d-flex gap-2 flex-wrap no-print">
+            <button
+              className="btn btn-outline-light rounded-pill px-4"
+              onClick={handleReanalyze}
+              disabled={reanalyzing}
+              title="Analyse the saved resume text again with the current engine"
+            >
+              <RefreshCw size={16} className={`me-2 ${reanalyzing ? "spin" : ""}`} />
+              {reanalyzing ? "Analysing..." : "Re-analyze"}
+            </button>
+            <button
+              className="btn btn-outline-light rounded-pill px-4"
+              onClick={() => window.print()}
+              title="Opens the print window. Choose 'Save as PDF' to download the report."
+            >
+              <Printer size={16} className="me-2" />
+              Download Report
+            </button>
+            <button
+              className="btn btn-light rounded-pill px-4"
+              onClick={() => navigate("/dashboard/history")}
+            >
+              <ArrowLeft size={16} className="me-2" />
+              Back
+            </button>
+          </div>
         </div>
       </div>
+
+      {actionError && (
+        <div className="alert alert-danger rounded-4 no-print" role="alert">
+          {actionError}
+        </div>
+      )}
+
+      {isOldAnalysis && (
+        <div className="alert alert-info rounded-4 small no-print">
+          This resume was analysed by an earlier version, so its score may differ from newer ones.
+          Click <strong>Re-analyze</strong> to update it with the current engine and see the full
+          breakdown.
+        </div>
+      )}
 
       <div className="row g-4">
         <div className="col-lg-4">
@@ -127,8 +194,21 @@ const ResumeAnalysis = () => {
         </div>
 
         <div className="col-lg-8">
-          <SkillsCard skills={resume?.skills || []} />
+          {resume?.scoreBreakdown ? (
+            <ScoreBreakdownCard
+              breakdown={resume.scoreBreakdown}
+              insights={resume.insights}
+            />
+          ) : (
+            <SkillsCard skills={resume?.skills || []} />
+          )}
         </div>
+
+        {resume?.scoreBreakdown && (
+          <div className="col-12">
+            <SkillsCard skills={resume?.skills || []} />
+          </div>
+        )}
 
         <div className="col-12">
           <MissingSkillsCard missingSkills={resume?.missingSkills || []} />
@@ -144,6 +224,14 @@ const ResumeAnalysis = () => {
 
         <div className="col-12">
           <SuggestionsCard suggestions={resume?.suggestions || []} />
+        </div>
+
+        <div className="col-12">
+          <JobMatchCard
+            key={resume?._id}
+            resumeId={resume?._id}
+            initialMatches={resume?.jobMatches || []}
+          />
         </div>
       </div>
     </div>

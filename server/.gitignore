@@ -1,2 +1,6 @@
 node_modules/
 .env
+
+# Uploaded resumes are private user data - never commit them
+uploads/*
+!uploads/.gitkeep

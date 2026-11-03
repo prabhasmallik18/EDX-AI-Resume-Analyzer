@@ -43,7 +43,7 @@ const Register = () => {
   return (
     <AuthCard
       title="Create Your Account"
-      subtitle="Start analyzing your resume with AI"
+      subtitle="Start analyzing your resume"
     >
       <form onSubmit={handleSubmit}>
         <InputField

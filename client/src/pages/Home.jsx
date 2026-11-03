@@ -21,7 +21,7 @@ const Home = () => {
 
         <h1 className="fw-bold display-5">AI Resume Analyzer</h1>
         <p className="lead mb-4 opacity-75">
-          Analyze your resume with AI, understand your ATS readiness, and get practical improvements.
+          Analyze your resume, understand your ATS readiness, match it to any job description, and get practical improvements.
         </p>
 
         <div className="d-flex justify-content-center gap-3 flex-wrap">
@@ -39,8 +39,8 @@ const Home = () => {
           <div className="card h-100 border-0 shadow-sm rounded-4">
             <div className="card-body p-4 text-center">
               <Sparkles size={38} className="text-primary mb-3" />
-              <h5 className="fw-bold">AI-Powered Analysis</h5>
-              <p className="text-muted mb-0">Get ATS score, strengths, weaknesses, missing skills, and suggestions.</p>
+              <h5 className="fw-bold">Smart Analysis Engine</h5>
+              <p className="text-muted mb-0">Get an ATS score with a clear breakdown, strengths, weaknesses, missing skills, and suggestions.</p>
             </div>
           </div>
         </div>
